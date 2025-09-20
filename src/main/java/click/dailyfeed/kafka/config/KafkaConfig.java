@@ -22,14 +22,14 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${infrastructure.kafka.topic.post-activity.prefix}")
-    private String postActivityPrefix;
-
-    @Value("${infrastructure.kafka.topic.post-activity.prefix-date-format}")
-    private String dateFormat;
-
-    @Value("${infrastructure.kafka.topic.post-activity.retention-ms:604800000}")
-    private String retentionMs;
+//    @Value("${infrastructure.kafka.topic.post-activity.prefix}")
+//    private String postActivityPrefix;
+//
+//    @Value("${infrastructure.kafka.topic.post-activity.prefix-date-format}")
+//    private String dateFormat;
+//
+//    @Value("${infrastructure.kafka.topic.post-activity.retention-ms:604800000}")
+//    private String retentionMs;
 
     @Value("${KAFKA_USER:}")
     private String kafkaUser;
