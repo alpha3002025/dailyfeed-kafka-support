@@ -1,5 +1,6 @@
 package click.dailyfeed.kafka.config;
 
+import click.dailyfeed.code.domain.content.comment.dto.CommentDto;
 import click.dailyfeed.code.domain.content.post.dto.PostDto;
 import click.dailyfeed.code.domain.member.member.dto.MemberDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -85,13 +86,58 @@ public class KafkaConfig {
         return factory;
     }
 
-    // User Activity Consumer 설정 (그냥 예제 (컨슈머가 여러개 생길 경우를 대비에 템플릿을 하나 만들어둠))
-    @Bean
-    public ConsumerFactory<String, MemberDto.MemberActivity> userActivityConsumerFactory() {
+    @Bean(name = "memberActivityConsumerFactory")
+    public ConsumerFactory<String, MemberDto.MemberActivity> memberActivityConsumerFactory() {
         Map<String, Object> props = getCommonConsumerProps();
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "user-activity-consumer-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "member-activity-consumer-group");
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, MemberDto.MemberActivity.class.getName());
         return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, MemberDto.MemberActivity> memberActivityKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, MemberDto.MemberActivity> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(memberActivityConsumerFactory());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        factory.setConcurrency(3); // 동시 처리 스레드 수
+        return factory;
+    }
+
+    @Bean(name = "postLikeActivityConsumerFactory")
+    public ConsumerFactory<String, PostDto.LikeActivityEvent> postLikeActivityConsumerFactory() {
+        Map<String, Object> props = getCommonConsumerProps();
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "post-like-activity-consumer-group");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, PostDto.LikeActivityEvent.class.getName());
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PostDto.LikeActivityEvent> postLikeActivityKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PostDto.LikeActivityEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(postLikeActivityConsumerFactory());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        factory.setConcurrency(3); // 동시 처리 스레드 수
+        return factory;
+    }
+
+    @Bean(name = "commentLikeActivityConsumerFactory")
+    public ConsumerFactory<String, CommentDto.LikeActivityEvent> commentLikeActivityConsumerFactory() {
+        Map<String, Object> props = getCommonConsumerProps();
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "comment-like-activity-consumer-group");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, CommentDto.LikeActivityEvent.class.getName());
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, CommentDto.LikeActivityEvent> commentLikeActivityKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, CommentDto.LikeActivityEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(commentLikeActivityConsumerFactory());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        factory.setConcurrency(3); // 동시 처리 스레드 수
+        return factory;
     }
 
     // Admin Configuration - local 프로필에서는 비활성화
