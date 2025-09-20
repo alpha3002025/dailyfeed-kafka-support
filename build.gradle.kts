@@ -25,12 +25,16 @@ repositories {
 }
 
 dependencies {
-	implementation(":dailyfeed-code")
+	implementation(project(":dailyfeed-code"))
 
 	// spring
 	implementation("org.springframework.boot:spring-boot-starter")
-	// implementation("org.springframework.boot:spring-boot-starter-json")
+	implementation("org.springframework.boot:spring-boot-starter-json")
 	implementation("org.springframework.kafka:spring-kafka")
+
+	// jackson for JSON serialization
+	implementation("com.fasterxml.jackson.core:jackson-databind")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
 	// lombok
 //	compileOnly("org.projectlombok:lombok")
