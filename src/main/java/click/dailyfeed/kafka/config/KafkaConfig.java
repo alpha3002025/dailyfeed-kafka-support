@@ -20,7 +20,7 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
-    @Value("${spring.kafka.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers:localhost:29092,localhost:29093,localhost:29094}")
     private String bootstrapServers;
 
 //    @Value("${infrastructure.kafka.topic.post-activity.prefix}")
@@ -139,6 +139,10 @@ public class KafkaConfig {
         factory.setConcurrency(3); // 동시 처리 스레드 수
         return factory;
     }
+
+    /// producers ///
+
+
 
     // Admin Configuration - local 프로필에서는 비활성화
     // @Bean
