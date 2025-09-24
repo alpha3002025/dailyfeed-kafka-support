@@ -199,6 +199,8 @@ public class KafkaConfig {
 
         // ACK = 1 (리더 브로커만 확인)
         configs.put(ProducerConfig.ACKS_CONFIG, "1");
+        // 멱등성 비활성화
+        configs.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, false);
 
         // 성능 최적화 설정
         configs.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
@@ -208,9 +210,6 @@ public class KafkaConfig {
         // 재시도 설정
         configs.put(ProducerConfig.RETRIES_CONFIG, 3);
         configs.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 100);
-
-        // 멱등성 보장 (중복 방지)
-        configs.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
 
         // 타임아웃 설정
         configs.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 30000);

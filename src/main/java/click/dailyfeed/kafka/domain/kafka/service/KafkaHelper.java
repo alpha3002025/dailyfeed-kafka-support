@@ -24,4 +24,17 @@ public class KafkaHelper {
                 });
     }
 
+    public void sendPlain(String topicName, String key, Object payload) {
+        kafkaTemplate.send(topicName, key, payload)
+                .whenComplete((result, throwable) -> {
+                    if (throwable != null) {
+                        log.error("Failed to send post activity event to topic: {}, key: {}",
+                                topicName, key, throwable);
+                    } else {
+                        log.info("Successfully sent post activity event to topic: {}, postId: {}",
+                                topicName, key);
+                    }
+                });
+    }
+
 }
