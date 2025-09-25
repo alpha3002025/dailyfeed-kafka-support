@@ -3,6 +3,8 @@ package click.dailyfeed.kafka.config;
 import click.dailyfeed.code.domain.content.comment.dto.CommentDto;
 import click.dailyfeed.code.domain.content.post.dto.PostDto;
 import click.dailyfeed.code.domain.member.member.dto.MemberDto;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -206,6 +208,10 @@ public class KafkaConfig {
         configs.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
         configs.put(ProducerConfig.LINGER_MS_CONFIG, 20);
         configs.put(ProducerConfig.BATCH_SIZE_CONFIG, 32768); // 32KB
+//        configs.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+
+        // 하나의 브로커 연결에서 응답을 기다리는 동안 전송할 수 있는 최대 요청 수
+//        configs.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
 
         // 재시도 설정
         configs.put(ProducerConfig.RETRIES_CONFIG, 3);
@@ -223,37 +229,10 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 
-    // Admin Configuration - local 프로필에서는 비활성화
-    // @Bean
-    // public KafkaAdmin kafkaAdmin() {
-    //     Map<String, Object> configs = new HashMap<>();
-    //     configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    //     return new KafkaAdmin(configs);
-    // }
-
-    // Topic 생성 (현재 날짜 기준) - local 프로필에서는 비활성화
-    // @Bean
-    // public NewTopic todayPostActivityTopic() {
-    //     String today = LocalDate.now().format(DateTimeFormatter.ofPattern(dateFormat));
-    //     String topicName = postActivityPrefix + today;
-
-    //     // config
-    //     Map<String, String> props = new HashMap<>();
-    //     props.put(TopicConfig.RETENTION_MS_CONFIG, retentionMs);
-
-    //     return new NewTopic(topicName, 3, (short) 1).configs(props);
-    // }
-
-    // Topic 생성 (어제 날짜 기준 - 테스트용) - local 프로필에서는 비활성화
-    // @Bean
-    // public NewTopic yesterdayPostActivityTopic() {
-    //     String yesterday = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern(dateFormat));
-    //     String topicName = postActivityPrefix + yesterday;
-
-    //     // config
-    //     Map<String, String> props = new HashMap<>();
-    //     props.put(TopicConfig.RETENTION_MS_CONFIG, retentionMs);
-
-    //     return new NewTopic(topicName, 3, (short) 1).configs(props);
-    // }
+    @Bean
+    public AdminClient adminClient() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        return AdminClient.create(configs);
+    }
 }
