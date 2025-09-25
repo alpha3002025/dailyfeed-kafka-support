@@ -118,6 +118,29 @@ public class KafkaConfig {
         return factory;
     }
 
+    @Bean(name = "commentActivityConsumerFactory")
+    public ConsumerFactory<String, CommentDto.CommentActivityEvent> commentActivityConsumerFactory() {
+        Map<String, Object> props = getCommonConsumerProps();
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "comment-activity-consumer-group");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, CommentDto.CommentActivityEvent.class.getName());
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, CommentDto.CommentActivityEvent> commentActivityKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, CommentDto.CommentActivityEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(commentActivityConsumerFactory());
+
+        /// At Least Once 설정
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        factory.getContainerProperties().setSyncCommits(true);
+
+        /// 에러 핸들링 (파티션 6개 기준)
+        factory.setConcurrency(3); // 동시 처리 스레드 수
+        return factory;
+    }
+
     @Bean(name = "memberActivityConsumerFactory")
     public ConsumerFactory<String, MemberDto.MemberActivity> memberActivityConsumerFactory() {
         Map<String, Object> props = getCommonConsumerProps();
