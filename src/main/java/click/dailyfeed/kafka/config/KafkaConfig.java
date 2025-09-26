@@ -72,6 +72,20 @@ public class KafkaConfig {
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000); // 30초
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000); // 10초
 
+        /// Offset 관리 및 안정성 설정 - Consumer 재시작 시 이전 메시지 재수신 방지
+        props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, "org.apache.kafka.clients.consumer.CooperativeStickyAssignor");
+
+        /// Fetch 최적화 설정 - 중복 메시지 수신 방지
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 1);
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 500);
+
+        /// Consumer 그룹 안정성 향상 설정
+        props.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, 540000); // 9분
+        props.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, 300000); // 5분
+
+        /// Offset commit 안정성 설정
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 5000); // auto commit 사용하지 않지만 내부적으로 참조됨
+
         /// 재시도 설정
         props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, 60000);
         props.put(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, 100);
