@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class MemberActivityPublisher {
+public class MemberActivityKafkaPublisher {
     private final KafkaHelper kafkaHelper;
     private final DateBasedTopicResolver dateBasedTopicResolver;
 
