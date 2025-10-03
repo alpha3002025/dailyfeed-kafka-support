@@ -20,13 +20,13 @@ public class MemberActivityPublisher {
     private final KafkaHelper kafkaHelper;
     private final DateBasedTopicResolver dateBasedTopicResolver;
 
-    public void publishPostLikeEvent(Long memberId, Long postId, MemberActivityType activityType){
+    public void publishPostReadEvent(Long memberId, Long postId){
         try{
             LocalDateTime now = kafkaHelper.currentDateTime();
             String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
 
             MemberActivityTransportDto.MemberActivityEvent memberPostLikeActivityEvent = MemberActivityTransferDtoFactory
-                    .newPostLikeMemberActivityTransportDto(memberId, postId, activityType, now);
+                    .newPostLikeMemberActivityTransportDto(memberId, postId, MemberActivityType.POST_READ, now);
 
             kafkaHelper.send(topicName, postId.toString(), memberPostLikeActivityEvent);
         }
@@ -35,4 +35,6 @@ public class MemberActivityPublisher {
             throw new KafkaNetworkErrorException();
         }
     }
+
+
 }
