@@ -20,13 +20,14 @@ public class MemberActivityPublisher {
     private final KafkaHelper kafkaHelper;
     private final DateBasedTopicResolver dateBasedTopicResolver;
 
+    /// post
     public void publishPostReadEvent(Long memberId, Long postId){
         try{
             LocalDateTime now = kafkaHelper.currentDateTime();
             String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
 
             MemberActivityTransportDto.MemberActivityEvent memberPostLikeActivityEvent = MemberActivityTransferDtoFactory
-                    .newPostLikeMemberActivityTransportDto(memberId, postId, MemberActivityType.POST_READ, now);
+                    .newPostMemberActivityTransportDto(memberId, postId, MemberActivityType.POST_READ, now);
 
             kafkaHelper.send(topicName, postId.toString(), memberPostLikeActivityEvent);
         }
@@ -36,5 +37,58 @@ public class MemberActivityPublisher {
         }
     }
 
+    public void publishPostCUDEvent(Long memberId, Long postId, MemberActivityType activityType){
+        try{
+            LocalDateTime now = kafkaHelper.currentDateTime();
+            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
 
+            MemberActivityTransportDto.MemberActivityEvent memberPostLikeActivityEvent = MemberActivityTransferDtoFactory
+                    .newPostMemberActivityTransportDto(memberId, postId, activityType, now);
+
+            kafkaHelper.send(topicName, postId.toString(), memberPostLikeActivityEvent);
+        }
+        catch (Exception e){
+            log.error("Error publishing post activity event: ", e);
+            throw new KafkaNetworkErrorException();
+        }
+    }
+
+    /// comment
+    public void publishCommentReadEvent(Long memberId, Long postId){
+        try{
+            LocalDateTime now = kafkaHelper.currentDateTime();
+            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+            MemberActivityTransportDto.MemberActivityEvent memberPostLikeActivityEvent = MemberActivityTransferDtoFactory
+                    .newCommentMemberActivityTransportDto(memberId, postId, MemberActivityType.COMMENT_READ, now);
+
+            kafkaHelper.send(topicName, postId.toString(), memberPostLikeActivityEvent);
+        }
+        catch (Exception e){
+            log.error("Error publishing post activity event: ", e);
+            throw new KafkaNetworkErrorException();
+        }
+    }
+
+    public void publishCommentCUDEvent(Long memberId, Long postId, MemberActivityType activityType){
+        try{
+            LocalDateTime now = kafkaHelper.currentDateTime();
+            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+            MemberActivityTransportDto.MemberActivityEvent memberPostLikeActivityEvent = MemberActivityTransferDtoFactory
+                    .newCommentMemberActivityTransportDto(memberId, postId, activityType, now);
+
+            kafkaHelper.send(topicName, postId.toString(), memberPostLikeActivityEvent);
+        }
+        catch (Exception e){
+            log.error("Error publishing post activity event: ", e);
+            throw new KafkaNetworkErrorException();
+        }
+    }
+
+    /// post (like)
+
+    /// comment (like)
+
+    /// member
 }
