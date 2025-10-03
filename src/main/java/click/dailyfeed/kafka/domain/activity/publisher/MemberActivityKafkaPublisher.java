@@ -87,8 +87,38 @@ public class MemberActivityKafkaPublisher {
     }
 
     /// post (like)
+    public void publishPostLikeEvent(Long memberId, Long postId, MemberActivityType activityType){
+        try{
+            LocalDateTime now = kafkaHelper.currentDateTime();
+            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+            MemberActivityTransportDto.MemberActivityEvent memberPostLikeActivityEvent = MemberActivityTransferDtoFactory
+                    .newPostLikeMemberActivityTransportDto(memberId, postId, activityType, now);
+
+            kafkaHelper.send(topicName, postId.toString(), memberPostLikeActivityEvent);
+        }
+        catch (Exception e){
+            log.error("Error publishing post activity event: ", e);
+            throw new KafkaNetworkErrorException();
+        }
+    }
 
     /// comment (like)
+    public void publishCommentLikeEvent(Long memberId, Long postId, Long commentId, MemberActivityType activityType){
+        try{
+            LocalDateTime now = kafkaHelper.currentDateTime();
+            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+            MemberActivityTransportDto.MemberActivityEvent memberPostLikeActivityEvent = MemberActivityTransferDtoFactory
+                    .newCommentLikeMemberActivityTransportDto(memberId, postId, commentId, activityType, now);
+
+            kafkaHelper.send(topicName, postId.toString(), memberPostLikeActivityEvent);
+        }
+        catch (Exception e){
+            log.error("Error publishing post activity event: ", e);
+            throw new KafkaNetworkErrorException();
+        }
+    }
 
     /// member
 }
