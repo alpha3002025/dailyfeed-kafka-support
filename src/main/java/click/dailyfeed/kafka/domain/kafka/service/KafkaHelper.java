@@ -42,5 +42,4 @@ public class KafkaHelper {
     public LocalDateTime currentDateTime() {
         return LocalDateTime.now();
     }
-
 }
