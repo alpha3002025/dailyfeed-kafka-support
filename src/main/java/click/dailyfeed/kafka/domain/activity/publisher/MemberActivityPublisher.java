@@ -54,15 +54,15 @@ public class MemberActivityPublisher {
     }
 
     /// comment
-    public void publishCommentReadEvent(Long memberId, Long postId){
+    public void publishCommentReadEvent(Long memberId, Long postId, Long commentId){
         try{
             LocalDateTime now = kafkaHelper.currentDateTime();
             String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
 
             MemberActivityTransportDto.MemberActivityEvent memberPostLikeActivityEvent = MemberActivityTransferDtoFactory
-                    .newCommentMemberActivityTransportDto(memberId, postId, MemberActivityType.COMMENT_READ, now);
+                    .newCommentMemberActivityTransportDto(memberId, postId, commentId, MemberActivityType.COMMENT_READ, now);
 
-            kafkaHelper.send(topicName, postId.toString(), memberPostLikeActivityEvent);
+            kafkaHelper.send(topicName, commentId.toString(), memberPostLikeActivityEvent);
         }
         catch (Exception e){
             log.error("Error publishing post activity event: ", e);
@@ -70,13 +70,13 @@ public class MemberActivityPublisher {
         }
     }
 
-    public void publishCommentCUDEvent(Long memberId, Long postId, MemberActivityType activityType){
+    public void publishCommentCUDEvent(Long memberId, Long postId, Long commentId, MemberActivityType activityType){
         try{
             LocalDateTime now = kafkaHelper.currentDateTime();
             String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
 
             MemberActivityTransportDto.MemberActivityEvent memberPostLikeActivityEvent = MemberActivityTransferDtoFactory
-                    .newCommentMemberActivityTransportDto(memberId, postId, activityType, now);
+                    .newCommentMemberActivityTransportDto(memberId, postId, commentId, activityType, now);
 
             kafkaHelper.send(topicName, postId.toString(), memberPostLikeActivityEvent);
         }
