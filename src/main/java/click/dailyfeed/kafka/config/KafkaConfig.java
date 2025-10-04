@@ -3,7 +3,6 @@ package click.dailyfeed.kafka.config;
 import click.dailyfeed.code.domain.activity.transport.MemberActivityTransportDto;
 import click.dailyfeed.code.domain.content.comment.dto.CommentDto;
 import click.dailyfeed.code.domain.content.post.dto.PostDto;
-import click.dailyfeed.code.domain.member.member.dto.MemberDto;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -160,7 +159,7 @@ public class KafkaConfig {
     public ConsumerFactory<String, MemberActivityTransportDto.MemberActivityEvent> memberActivityConsumerFactory() {
         Map<String, Object> props = getCommonConsumerProps();
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "member-activity-consumer-group");
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, MemberDto.MemberActivity.class.getName());
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, MemberActivityTransportDto.MemberActivityEvent.class.getName());
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
