@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -37,4 +39,7 @@ public class KafkaHelper {
                 });
     }
 
+    public LocalDateTime currentDateTime() {
+        return LocalDateTime.now();
+    }
 }

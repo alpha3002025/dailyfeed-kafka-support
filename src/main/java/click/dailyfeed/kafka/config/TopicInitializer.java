@@ -1,5 +1,6 @@
 package click.dailyfeed.kafka.config;
 
+import click.dailyfeed.code.global.kafka.type.DateBasedTopicType;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +26,6 @@ import java.util.Set;
 @Component
 public class TopicInitializer {
     private final KafkaAdmin kafkaAdmin;
-
-    // todo yaml 기반으로 변경 예정
     private static final int PARTITIONS = 6;
     private static final int REPLICATION_FACTOR = 2;
 
@@ -45,13 +44,21 @@ public class TopicInitializer {
 
     private void createTodayTopicIfNotExists() {
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        createTopicIfNotExists("post-activity-" + today);
+        createTopic(today);
     }
 
     private void createTomorrowTopicIfNotExists() {
         String tomorrow = LocalDate.now().plusDays(1)
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        createTopicIfNotExists("post-activity-" + tomorrow);
+        createTopic(tomorrow);
+    }
+
+    private void createTopic(String dateStr){
+        Arrays
+                .stream(DateBasedTopicType.values())
+                .forEach(topicType -> {
+                    createTopicIfNotExists(topicType.getTopicPrefix() + dateStr);
+                });
     }
 
     private AdminClient getAdminClient() {
