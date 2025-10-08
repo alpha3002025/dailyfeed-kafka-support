@@ -6,6 +6,7 @@ import click.dailyfeed.code.domain.activity.type.MemberActivityType;
 import click.dailyfeed.code.global.kafka.exception.KafkaMessageKeyCreationException;
 import click.dailyfeed.code.global.kafka.exception.KafkaNetworkErrorException;
 import click.dailyfeed.code.global.kafka.type.DateBasedTopicType;
+import click.dailyfeed.kafka.domain.activity.redis.MemberActivityEventRedisService;
 import click.dailyfeed.kafka.domain.kafka.service.KafkaHelper;
 import click.dailyfeed.kafka.domain.kafka.topic.DateBasedTopicResolver;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 public class MemberActivityKafkaPublisher {
     private final KafkaHelper kafkaHelper;
     private final DateBasedTopicResolver dateBasedTopicResolver;
+    private final MemberActivityEventRedisService memberActivityEventRedisService;
 
     /// post
     public void publishPostReadEvent(Long memberId, Long postId){
@@ -37,7 +39,15 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            if(!memberActivityEventRedisService.checkExist(message)){
+                memberActivityEventRedisService.put(message);
+                try{
+                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+                } catch (Exception e){
+                    memberActivityEventRedisService.evict(message);
+                    throw new KafkaNetworkErrorException();
+                }
+            }
         }
         catch (Exception e){
             log.error("Error publishing post activity event: ", e);
@@ -60,7 +70,15 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            if(!memberActivityEventRedisService.checkExist(message)){
+                memberActivityEventRedisService.put(message);
+                try{
+                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+                } catch (Exception e){
+                    memberActivityEventRedisService.evict(message);
+                    throw new KafkaNetworkErrorException();
+                }
+            }
         }
         catch (Exception e){
             log.error("Error publishing post activity event: ", e);
@@ -84,7 +102,15 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            if(!memberActivityEventRedisService.checkExist(message)){
+                memberActivityEventRedisService.put(message);
+                try{
+                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+                } catch (Exception e){
+                    memberActivityEventRedisService.evict(message);
+                    throw new KafkaNetworkErrorException();
+                }
+            }
         }
         catch (Exception e){
             log.error("Error publishing post activity event: ", e);
@@ -107,7 +133,15 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            if(!memberActivityEventRedisService.checkExist(message)){
+                memberActivityEventRedisService.put(message);
+                try{
+                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+                } catch (Exception e){
+                    memberActivityEventRedisService.evict(message);
+                    throw new KafkaNetworkErrorException();
+                }
+            }
         }
         catch (Exception e){
             log.error("Error publishing post activity event: ", e);
@@ -131,7 +165,15 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            if(!memberActivityEventRedisService.checkExist(message)){
+                memberActivityEventRedisService.put(message);
+                try{
+                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+                } catch (Exception e){
+                    memberActivityEventRedisService.evict(message);
+                    throw new KafkaNetworkErrorException();
+                }
+            }
         }
         catch (Exception e){
             log.error("Error publishing post activity event: ", e);
@@ -155,7 +197,15 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            if(!memberActivityEventRedisService.checkExist(message)){
+                memberActivityEventRedisService.put(message);
+                try{
+                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+                } catch (Exception e){
+                    memberActivityEventRedisService.evict(message);
+                    throw new KafkaNetworkErrorException();
+                }
+            }
         }
         catch (Exception e){
             log.error("Error publishing post activity event: ", e);
