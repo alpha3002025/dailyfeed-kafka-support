@@ -26,11 +26,13 @@ repositories {
 
 dependencies {
 	implementation(project(":dailyfeed-code"))
+	implementation(project(":dailyfeed-redis-support"))
 
 	// spring
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-json")
 	implementation("org.springframework.kafka:spring-kafka")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
 	// jackson for JSON serialization
 	implementation("com.fasterxml.jackson.core:jackson-databind")
