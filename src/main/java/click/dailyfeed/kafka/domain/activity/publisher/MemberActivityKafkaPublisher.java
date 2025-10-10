@@ -3,12 +3,14 @@ package click.dailyfeed.kafka.domain.activity.publisher;
 import click.dailyfeed.code.domain.activity.factory.MemberActivityTransferDtoFactory;
 import click.dailyfeed.code.domain.activity.transport.MemberActivityTransportDto;
 import click.dailyfeed.code.domain.activity.type.MemberActivityType;
+import click.dailyfeed.code.global.kafka.exception.KafkaDLQRedisNetworkErrorException;
 import click.dailyfeed.code.global.kafka.exception.KafkaMessageKeyCreationException;
 import click.dailyfeed.code.global.kafka.exception.KafkaNetworkErrorException;
 import click.dailyfeed.code.global.kafka.type.DateBasedTopicType;
-import click.dailyfeed.kafka.domain.activity.redis.MemberActivityEventRedisService;
+import click.dailyfeed.kafka.domain.activity.redis.MemberActivityEventDLQRedisService;
 import click.dailyfeed.kafka.domain.kafka.service.KafkaHelper;
 import click.dailyfeed.kafka.domain.kafka.topic.DateBasedTopicResolver;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,7 +23,8 @@ import java.time.LocalDateTime;
 public class MemberActivityKafkaPublisher {
     private final KafkaHelper kafkaHelper;
     private final DateBasedTopicResolver dateBasedTopicResolver;
-    private final MemberActivityEventRedisService memberActivityEventRedisService;
+    private final MemberActivityEventDLQRedisService memberActivityEventDLQRedisService;
+    private final ObjectMapper objectMapper;
 
     /// post
     public void publishPostReadEvent(Long memberId, Long postId){
@@ -39,15 +42,20 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            if(!memberActivityEventRedisService.checkExist(message)){
-                memberActivityEventRedisService.put(message);
-                try{
-                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-                } catch (Exception e){
-                    memberActivityEventRedisService.evict(message);
-                    throw new KafkaNetworkErrorException();
-                }
+            try{
+                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
             }
+            catch (Exception e){
+                try{
+                    memberActivityEventDLQRedisService.rPush(event);
+                }
+                catch (Exception e2){
+                    String payload = objectMapper.writeValueAsString(message);
+                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
+                }
+                throw new KafkaNetworkErrorException();
+            }
+
         }
         catch (Exception e){
             log.error("Error publishing post activity event: ", e);
@@ -70,14 +78,18 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            if(!memberActivityEventRedisService.checkExist(message)){
-                memberActivityEventRedisService.put(message);
+            try{
+                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            }
+            catch (Exception e){
                 try{
-                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-                } catch (Exception e){
-                    memberActivityEventRedisService.evict(message);
-                    throw new KafkaNetworkErrorException();
+                    memberActivityEventDLQRedisService.rPush(event);
                 }
+                catch (Exception e2){
+                    String payload = objectMapper.writeValueAsString(message);
+                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
+                }
+                throw new KafkaNetworkErrorException();
             }
         }
         catch (Exception e){
@@ -102,14 +114,18 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            if(!memberActivityEventRedisService.checkExist(message)){
-                memberActivityEventRedisService.put(message);
+            try{
+                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            }
+            catch (Exception e){
                 try{
-                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-                } catch (Exception e){
-                    memberActivityEventRedisService.evict(message);
-                    throw new KafkaNetworkErrorException();
+                    memberActivityEventDLQRedisService.rPush(event);
                 }
+                catch (Exception e2){
+                    String payload = objectMapper.writeValueAsString(message);
+                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
+                }
+                throw new KafkaNetworkErrorException();
             }
         }
         catch (Exception e){
@@ -133,14 +149,18 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            if(!memberActivityEventRedisService.checkExist(message)){
-                memberActivityEventRedisService.put(message);
+            try{
+                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            }
+            catch (Exception e){
                 try{
-                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-                } catch (Exception e){
-                    memberActivityEventRedisService.evict(message);
-                    throw new KafkaNetworkErrorException();
+                    memberActivityEventDLQRedisService.rPush(event);
                 }
+                catch (Exception e2){
+                    String payload = objectMapper.writeValueAsString(message);
+                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
+                }
+                throw new KafkaNetworkErrorException();
             }
         }
         catch (Exception e){
@@ -165,14 +185,18 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            if(!memberActivityEventRedisService.checkExist(message)){
-                memberActivityEventRedisService.put(message);
+            try{
+                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            }
+            catch (Exception e){
                 try{
-                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-                } catch (Exception e){
-                    memberActivityEventRedisService.evict(message);
-                    throw new KafkaNetworkErrorException();
+                    memberActivityEventDLQRedisService.rPush(event);
                 }
+                catch (Exception e2){
+                    String payload = objectMapper.writeValueAsString(message);
+                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
+                }
+                throw new KafkaNetworkErrorException();
             }
         }
         catch (Exception e){
@@ -197,14 +221,18 @@ public class MemberActivityKafkaPublisher {
                 throw new KafkaMessageKeyCreationException();
             }
 
-            if(!memberActivityEventRedisService.checkExist(message)){
-                memberActivityEventRedisService.put(message);
+            try{
+                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
+            }
+            catch (Exception e){
                 try{
-                    kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-                } catch (Exception e){
-                    memberActivityEventRedisService.evict(message);
-                    throw new KafkaNetworkErrorException();
+                    memberActivityEventDLQRedisService.rPush(event);
                 }
+                catch (Exception e2){
+                    String payload = objectMapper.writeValueAsString(message);
+                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
+                }
+                throw new KafkaNetworkErrorException();
             }
         }
         catch (Exception e){
