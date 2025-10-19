@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class MemberActivityEventDLQRedisService {
@@ -27,23 +29,23 @@ public class MemberActivityEventDLQRedisService {
         redisTemplate.opsForList().rightPush(key, message);
     }
 
-//    public void rPushList(List<MemberActivityTransportDto.MemberActivityEvent> memberActivityEvents) {
-//        memberActivityEvents.stream().forEach(event -> {
-//            String deadLetterKey = deadLetterKey(event.getMemberActivityType());
-//            redisTemplate.opsForList().rightPush(deadLetterKey, event);
-//        });
-//    }
-//
-//    public MemberActivityTransportDto.MemberActivityEvent lPop(MemberActivityType memberActivityType) {
-//        return redisTemplate.opsForList().leftPop(deadLetterKey(memberActivityType));
-//    }
-//
-//    public List<MemberActivityTransportDto.MemberActivityEvent> lPopTopN(MemberActivityType memberActivityType, int size){
-//        String key = deadLetterKey(memberActivityType);
-//        return redisTemplate.opsForList().leftPop(key, size);
-//    }
-//
-//    public void evictAll(MemberActivityTransportDto.MemberActivityEvent memberActivityEvent) {
-//        redisTemplate.delete(deadLetterKey(memberActivityEvent.getMemberActivityType()));
-//    }
+    public void rPushList(List<MemberActivityTransportDto.MemberActivityMessage> messages) {
+        messages.stream().forEach(message -> {
+            String deadLetterKey = deadLetterKey(message.getEvent().getMemberActivityType());
+            redisTemplate.opsForList().rightPush(deadLetterKey, message);
+        });
+    }
+
+    public MemberActivityTransportDto.MemberActivityMessage lPop(MemberActivityType memberActivityType) {
+        return redisTemplate.opsForList().leftPop(deadLetterKey(memberActivityType));
+    }
+
+    public List<MemberActivityTransportDto.MemberActivityMessage> lPopTopN(MemberActivityType memberActivityType, int size){
+        String key = deadLetterKey(memberActivityType);
+        return redisTemplate.opsForList().leftPop(key, size);
+    }
+
+    public void evictAll(MemberActivityTransportDto.MemberActivityMessage memberActivityEvent) {
+        redisTemplate.delete(deadLetterKey(memberActivityEvent.getEvent().getMemberActivityType()));
+    }
 }
