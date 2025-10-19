@@ -47,7 +47,7 @@ public class MemberActivityKafkaPublisher {
             }
             catch (Exception e){
                 try{
-                    memberActivityEventDLQRedisService.rPush(event);
+                    memberActivityEventDLQRedisService.rPush(message);
                 }
                 catch (Exception e2){
                     String payload = objectMapper.writeValueAsString(message);
@@ -83,7 +83,7 @@ public class MemberActivityKafkaPublisher {
             }
             catch (Exception e){
                 try{
-                    memberActivityEventDLQRedisService.rPush(event);
+                    memberActivityEventDLQRedisService.rPush(message);
                 }
                 catch (Exception e2){
                     String payload = objectMapper.writeValueAsString(message);
@@ -119,7 +119,7 @@ public class MemberActivityKafkaPublisher {
             }
             catch (Exception e){
                 try{
-                    memberActivityEventDLQRedisService.rPush(event);
+                    memberActivityEventDLQRedisService.rPush(message);
                 }
                 catch (Exception e2){
                     String payload = objectMapper.writeValueAsString(message);
@@ -154,7 +154,7 @@ public class MemberActivityKafkaPublisher {
             }
             catch (Exception e){
                 try{
-                    memberActivityEventDLQRedisService.rPush(event);
+                    memberActivityEventDLQRedisService.rPush(message);
                 }
                 catch (Exception e2){
                     String payload = objectMapper.writeValueAsString(message);
@@ -190,7 +190,7 @@ public class MemberActivityKafkaPublisher {
             }
             catch (Exception e){
                 try{
-                    memberActivityEventDLQRedisService.rPush(event);
+                    memberActivityEventDLQRedisService.rPush(message);
                 }
                 catch (Exception e2){
                     String payload = objectMapper.writeValueAsString(message);
@@ -226,7 +226,7 @@ public class MemberActivityKafkaPublisher {
             }
             catch (Exception e){
                 try{
-                    memberActivityEventDLQRedisService.rPush(event);
+                    memberActivityEventDLQRedisService.rPush(message);
                 }
                 catch (Exception e2){
                     String payload = objectMapper.writeValueAsString(message);
