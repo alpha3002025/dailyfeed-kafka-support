@@ -13,10 +13,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class MemberActivityEventDLQRedisService {
-//    private static final Duration TTL = Duration.ofMinutes(30);
-
     @Qualifier("memberActivityTransportDtoRedisTemplate")
-    private final RedisTemplate<String, MemberActivityTransportDto.MemberActivityEvent> redisTemplate;
+    private final RedisTemplate<String, MemberActivityTransportDto.MemberActivityMessage> redisTemplate;
 
 
     public String deadLetterKey(MemberActivityType memberActivityType) {
@@ -26,29 +24,28 @@ public class MemberActivityEventDLQRedisService {
                 .toString();
     }
 
-    public void rPush(MemberActivityTransportDto.MemberActivityEvent memberActivityEvent) {
-        String key = deadLetterKey(memberActivityEvent.getMemberActivityType());
-        redisTemplate.opsForList().rightPush(key, memberActivityEvent);
-//        redisTemplate.expire(key, TTL);
+    public void rPush(MemberActivityTransportDto.MemberActivityMessage message) {
+        String key = deadLetterKey(message.getEvent().getMemberActivityType());
+        redisTemplate.opsForList().rightPush(key, message);
     }
 
-    public void rPushList(List<MemberActivityTransportDto.MemberActivityEvent> memberActivityEvents) {
-        memberActivityEvents.stream().forEach(event -> {
-            String deadLetterKey = deadLetterKey(event.getMemberActivityType());
-            redisTemplate.opsForList().rightPush(deadLetterKey, event);
+    public void rPushList(List<MemberActivityTransportDto.MemberActivityMessage> messages) {
+        messages.stream().forEach(message -> {
+            String deadLetterKey = deadLetterKey(message.getEvent().getMemberActivityType());
+            redisTemplate.opsForList().rightPush(deadLetterKey, message);
         });
     }
 
-    public MemberActivityTransportDto.MemberActivityEvent lPop(MemberActivityType memberActivityType) {
+    public MemberActivityTransportDto.MemberActivityMessage lPop(MemberActivityType memberActivityType) {
         return redisTemplate.opsForList().leftPop(deadLetterKey(memberActivityType));
     }
 
-    public List<MemberActivityTransportDto.MemberActivityEvent> lPopTopN(MemberActivityType memberActivityType, int size){
+    public List<MemberActivityTransportDto.MemberActivityMessage> lPopTopN(MemberActivityType memberActivityType, int size){
         String key = deadLetterKey(memberActivityType);
         return redisTemplate.opsForList().leftPop(key, size);
     }
 
-    public void evictAll(MemberActivityTransportDto.MemberActivityEvent memberActivityEvent) {
-        redisTemplate.delete(deadLetterKey(memberActivityEvent.getMemberActivityType()));
+    public void evictAll(MemberActivityTransportDto.MemberActivityMessage memberActivityEvent) {
+        redisTemplate.delete(deadLetterKey(memberActivityEvent.getEvent().getMemberActivityType()));
     }
 }
