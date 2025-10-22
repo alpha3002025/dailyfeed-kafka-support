@@ -3,7 +3,6 @@ package click.dailyfeed.kafka.domain.activity.publisher;
 import click.dailyfeed.code.domain.activity.factory.MemberActivityTransferDtoFactory;
 import click.dailyfeed.code.domain.activity.transport.MemberActivityTransportDto;
 import click.dailyfeed.code.domain.activity.type.MemberActivityType;
-import click.dailyfeed.code.global.kafka.exception.KafkaDLQRedisNetworkErrorException;
 import click.dailyfeed.code.global.kafka.exception.KafkaMessageKeyCreationException;
 import click.dailyfeed.code.global.kafka.exception.KafkaNetworkErrorException;
 import click.dailyfeed.code.global.kafka.type.DateBasedTopicType;
@@ -28,215 +27,136 @@ public class MemberActivityKafkaPublisher {
 
     /// post
     public void publishPostReadEvent(Long memberId, Long postId){
+        LocalDateTime now = kafkaHelper.currentDateTime();
+        String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+        MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
+                .newPostMemberActivityTransportDto(memberId, postId, MemberActivityType.POST_READ, now);
+
+        MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
+                .newMemberActivityMessage(event, MemberActivityType.POST_READ, now);
+
+        if (message.getKey() == null){
+            throw new KafkaMessageKeyCreationException();
+        }
+
         try{
-            LocalDateTime now = kafkaHelper.currentDateTime();
-            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
-
-            MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
-                    .newPostMemberActivityTransportDto(memberId, postId, MemberActivityType.POST_READ, now);
-
-            MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
-                    .newMemberActivityMessage(event, MemberActivityType.POST_READ, now);
-
-            if (message.getKey() == null){
-                throw new KafkaMessageKeyCreationException();
-            }
-
-            try{
-                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-            }
-            catch (Exception e){
-                try{
-                    memberActivityEventDLQRedisService.rPush(message);
-                }
-                catch (Exception e2){
-                    String payload = objectMapper.writeValueAsString(message);
-                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
-                }
-                throw new KafkaNetworkErrorException();
-            }
-
+            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
         }
         catch (Exception e){
-            log.error("Error publishing post activity event: ", e);
             throw new KafkaNetworkErrorException();
         }
     }
 
     public void publishPostCUDEvent(Long memberId, Long postId, MemberActivityType activityType){
+        LocalDateTime now = kafkaHelper.currentDateTime();
+        String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+        MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
+                .newPostMemberActivityTransportDto(memberId, postId, activityType, now);
+
+        MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
+                .newMemberActivityMessage(event, activityType, now);
+
+        if (message.getKey() == null){
+            throw new KafkaMessageKeyCreationException();
+        }
+
         try{
-            LocalDateTime now = kafkaHelper.currentDateTime();
-            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
-
-            MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
-                    .newPostMemberActivityTransportDto(memberId, postId, activityType, now);
-
-            MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
-                    .newMemberActivityMessage(event, activityType, now);
-
-            if (message.getKey() == null){
-                throw new KafkaMessageKeyCreationException();
-            }
-
-            try{
-                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-            }
-            catch (Exception e){
-                try{
-                    memberActivityEventDLQRedisService.rPush(message);
-                }
-                catch (Exception e2){
-                    String payload = objectMapper.writeValueAsString(message);
-                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
-                }
-                throw new KafkaNetworkErrorException();
-            }
+            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
         }
         catch (Exception e){
-            log.error("Error publishing post activity event: ", e);
             throw new KafkaNetworkErrorException();
         }
     }
 
     /// comment
     public void publishCommentReadEvent(Long memberId, Long postId, Long commentId){
+        LocalDateTime now = kafkaHelper.currentDateTime();
+        String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+        MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
+                .newCommentMemberActivityTransportDto(memberId, postId, commentId, MemberActivityType.COMMENT_READ, now);
+
+        MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
+                .newMemberActivityMessage(event, MemberActivityType.COMMENT_READ, now);
+
+        if (message.getKey() == null){
+            throw new KafkaMessageKeyCreationException();
+        }
+
         try{
-            LocalDateTime now = kafkaHelper.currentDateTime();
-            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
-
-            MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
-                    .newCommentMemberActivityTransportDto(memberId, postId, commentId, MemberActivityType.COMMENT_READ, now);
-
-            MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
-                    .newMemberActivityMessage(event, MemberActivityType.COMMENT_READ, now);
-
-            if (message.getKey() == null){
-                throw new KafkaMessageKeyCreationException();
-            }
-
-            try{
-                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-            }
-            catch (Exception e){
-                try{
-                    memberActivityEventDLQRedisService.rPush(message);
-                }
-                catch (Exception e2){
-                    String payload = objectMapper.writeValueAsString(message);
-                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
-                }
-                throw new KafkaNetworkErrorException();
-            }
+            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
         }
         catch (Exception e){
-            log.error("Error publishing post activity event: ", e);
             throw new KafkaNetworkErrorException();
         }
     }
 
     public void publishCommentCUDEvent(Long memberId, Long postId, Long commentId, MemberActivityType activityType){
+        LocalDateTime now = kafkaHelper.currentDateTime();
+        String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+        MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
+                .newCommentMemberActivityTransportDto(memberId, postId, commentId, activityType, now);
+
+        MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
+                .newMemberActivityMessage(event, activityType, now);
+
+        if (message.getKey() == null){
+            throw new KafkaMessageKeyCreationException();
+        }
+
         try{
-            LocalDateTime now = kafkaHelper.currentDateTime();
-            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
-
-            MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
-                    .newCommentMemberActivityTransportDto(memberId, postId, commentId, activityType, now);
-
-            MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
-                    .newMemberActivityMessage(event, activityType, now);
-
-            if (message.getKey() == null){
-                throw new KafkaMessageKeyCreationException();
-            }
-
-            try{
-                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-            }
-            catch (Exception e){
-                try{
-                    memberActivityEventDLQRedisService.rPush(message);
-                }
-                catch (Exception e2){
-                    String payload = objectMapper.writeValueAsString(message);
-                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
-                }
-                throw new KafkaNetworkErrorException();
-            }
+            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
         }
         catch (Exception e){
-            log.error("Error publishing post activity event: ", e);
             throw new KafkaNetworkErrorException();
         }
     }
 
     /// post (like)
     public void publishPostLikeEvent(Long memberId, Long postId, MemberActivityType activityType){
+        LocalDateTime now = kafkaHelper.currentDateTime();
+        String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+        MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
+                .newPostLikeMemberActivityTransportDto(memberId, postId, activityType, now);
+
+        MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
+                .newMemberActivityMessage(event, activityType, now);
+
+        if (message.getKey() == null){
+            throw new KafkaMessageKeyCreationException();
+        }
+
         try{
-            LocalDateTime now = kafkaHelper.currentDateTime();
-            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
-
-            MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
-                    .newPostLikeMemberActivityTransportDto(memberId, postId, activityType, now);
-
-            MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
-                    .newMemberActivityMessage(event, activityType, now);
-
-            if (message.getKey() == null){
-                throw new KafkaMessageKeyCreationException();
-            }
-
-            try{
-                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-            }
-            catch (Exception e){
-                try{
-                    memberActivityEventDLQRedisService.rPush(message);
-                }
-                catch (Exception e2){
-                    String payload = objectMapper.writeValueAsString(message);
-                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
-                }
-                throw new KafkaNetworkErrorException();
-            }
+            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
         }
         catch (Exception e){
-            log.error("Error publishing post activity event: ", e);
             throw new KafkaNetworkErrorException();
         }
     }
 
     /// comment (like)
     public void publishCommentLikeEvent(Long memberId, Long postId, Long commentId, MemberActivityType activityType){
+        LocalDateTime now = kafkaHelper.currentDateTime();
+        String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
+
+        MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
+                .newCommentLikeMemberActivityTransportDto(memberId, postId, commentId, activityType, now);
+
+        MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
+                .newMemberActivityMessage(event, activityType, now);
+
+        if (message.getKey() == null){
+            throw new KafkaMessageKeyCreationException();
+        }
+
         try{
-            LocalDateTime now = kafkaHelper.currentDateTime();
-            String topicName = dateBasedTopicResolver.resolveDateBasedTopicName(DateBasedTopicType.MEMBER_ACTIVITY, now);
-
-            MemberActivityTransportDto.MemberActivityEvent event = MemberActivityTransferDtoFactory
-                    .newCommentLikeMemberActivityTransportDto(memberId, postId, commentId, activityType, now);
-
-            MemberActivityTransportDto.MemberActivityMessage message = MemberActivityTransferDtoFactory
-                    .newMemberActivityMessage(event, activityType, now);
-
-            if (message.getKey() == null){
-                throw new KafkaMessageKeyCreationException();
-            }
-
-            try{
-                kafkaHelper.send(topicName, message.getKey(), message.getEvent());
-            }
-            catch (Exception e){
-                try{
-                    memberActivityEventDLQRedisService.rPush(message);
-                }
-                catch (Exception e2){
-                    String payload = objectMapper.writeValueAsString(message);
-                    throw new KafkaDLQRedisNetworkErrorException(message.getKey(), payload);
-                }
-                throw new KafkaNetworkErrorException();
-            }
+            kafkaHelper.send(topicName, message.getKey(), message.getEvent());
         }
         catch (Exception e){
-            log.error("Error publishing post activity event: ", e);
             throw new KafkaNetworkErrorException();
         }
     }
